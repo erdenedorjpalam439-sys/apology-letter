@@ -17,10 +17,10 @@
             touch-action: none;
         }
 
-        /* Simplified Sway for better performance */
+        /* Soft, subtle wiggle */
         @keyframes gentleSway {
             0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(1deg); }
+            50% { transform: rotate(0.6deg); }
         }
 
         .envelope-sway:hover:not(.open) {
@@ -32,7 +32,7 @@
         }
 
         .letter-reveal {
-            transition: all 1.2s ease-out;
+            transition: all 1.2s cubic-bezier(0.2, 1, 0.3, 1);
             will-change: transform, opacity;
         }
         
@@ -53,21 +53,23 @@
             user-select: none;
         }
 
+        .text-standard {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #333;
+        }
+
         .word-paragraph {
             text-indent: 2em;
             text-align: justify;
-            line-height: 1.6;
             margin-bottom: 1.2em;
-            /* Uniform font size */
-            font-size: 18px;
-            color: #444;
         }
 
-        .final-inquiry {
+        .final-section {
             text-align: center;
             text-indent: 0;
-            margin-top: 2em;
-            padding-bottom: 4em;
+            margin-top: 3em;
+            padding-bottom: 6em;
         }
     </style>
 </head>
@@ -87,22 +89,21 @@
             const [isHolding, setIsHolding] = useState(false);
             
             const stateRef = useRef({ holding: false, progress: 0 });
-            const sealRef = useRef(null);
             const lastTimeRef = useRef(performance.now());
 
             const paragraphs = [
                 `Хамгийн эхлээд хайрт чамаасаа уучлалт хүсье, бас баярласан сэтгэлээ илэрхийлье. Анх 2023 оны өвөл чамайг Хайраа багшийн олимпиадын бэлтгэл дээр харж байлаа...`,
                 `Тэгээд хичээл ороод Хайраа багшийн давтлагад нь туслах багш хийж байхдаа, 9-ийн и-ийн хүүхдүүд гэж мэдээд чамайг суухгүй юм байх даа гэж нэлээд хүсэж хүлээж байсан...`,
                 `Дараа нь дуу хуур, бүжиг цэнгүүн дуусаад тэр хавиар хийцгүйрч явж байгаад заал руу нь орсон чинь танай ангийнхан ангиараа зургаа авахуулж байхад нь таараад...`,
-                `Тэгээд 10-р анги эхэлж чамайг ангид байгааг мэдээд бага багаар ажиглаж эхэлсэн… өрсөлдөгч гэж харсаар бусад хичээлдээ ч сайн гэдгийг чинь...`,
+                `Тэгээд 10-р анги эхэлж чамайг ангид байгааг мэдээд бага багаар ажиглаж эхэлсэн...`,
                 `Дараа нь химийн хичээл/цаг дээр цуг суугаад л, эхэндээ чамайг Мичидмаатай юм яриад эсвэл хичээлээ чимээгүйхэн хийхийг чинь хааяа даа хардаг байгаад...`,
                 `Харин чамтайгаа анх удаагаа ярилцаж үзсэн нь энэ зун 7-р сарын 4-нд, ээж хагалгааны өрөө рүүгээ орчихоор нь гадаа нь хүлээж суунгаа...`,
-                `Ээж ч эмнэлгээсээ гараад, гэртээ хариад яагаад ч юм чамтай дахин дахин ярилцахын хүслэн болсоор нэгэн аргыг сэдэв ээ. Чамаар зураг зуруулах нэрийдлээр...`,
+                `Ээж ч эмнэлгээсээ гараад, гэртээ хариад яагаад ч юм чамтай дахин дахин ярилцахын хүслэн болсоор нэгэн аргыг сэдэв ээ.`,
                 `Харин анх удаагаа чамд санаа зовсон минь бол, dude гэж их л сандарсан байдалтай зүг асуухад чинь...`,
                 `8-р сарын сүүл болж өдөр болгон шахуу чамтайгаа ярилцсаар хичээл орлоо, 9-н сарын 1-нд тэр олон дундаас чамайг олж харчихаад...`,
                 `Тэр орой нь чиний минь тавьсан note-ийг хараад “өөр залууд зориулсан бол яах вэ?”, “хэрвээ надад зориулсан бол...” гэж босоор сэтгэл зориглон чамд сэтгэлээ илчиллээ...`,
                 `Чамтайгаа үерхэж эхлээд гомдоохгүй юм сан, алдчихгүй юм сан гэж айсаар алдаа гаргаад тэдгээрийгэа мэдсэн ч засаж чадалгүй...`,
-                `Иймээс хайр нь болоогүй ирээдүйд биш зөвхөн чамдаа анхаарч, сэтгэл зүйгээ ч бас тогтвортой байлганаа...`,
+                `Иймээс хайр нь болоогүй ирээдүйд биш зөвхөн чамдаа анхаарч, сэтгэл зүйгээ ч бас тогтвортой байлганаа.`,
                 `Би өөрийгөө засаад гэсэн ч гэлээ, алдаагаа, буруу хийсэн зүйлсээ засаж байгаа болохоор, би “би” хэвээрээ л байх болохоор чамд минь санаа зовох зүйл байхгүй ээ.`
             ];
 
@@ -132,9 +133,7 @@
             }, [isCompleted]);
 
             useEffect(() => {
-                if (isSealPopped) {
-                    setTimeout(() => { setIsOpen(true); }, 200);
-                }
+                if (isSealPopped) { setTimeout(() => { setIsOpen(true); }, 200); }
             }, [isSealPopped]);
 
             useEffect(() => {
@@ -148,36 +147,34 @@
 
             return (
                 <div className="fixed inset-0 flex items-center justify-center bg-[#1c1917] overflow-hidden no-tap-highlight">
-                    
                     <div className={`relative w-[300px] h-[200px] transition-transform duration-1000 envelope-sway
                         ${isOpen ? 'translate-y-[35vh] scale-50' : ''} ${isHolding ? 'is-holding' : ''}`}>
                         
-                        {/* Envelope Body */}
                         <div className="absolute inset-0 bg-[#8b1e1e] rounded shadow-xl z-20 overflow-hidden">
                             <div className="absolute inset-0 bg-[#7a1515]" style={{ clipPath: 'polygon(0% 0%, 50% 50%, 100% 0%, 100% 100%, 0% 100%)' }} />
                         </div>
 
-                        {/* Flap */}
                         <div className="absolute top-0 w-full h-full bg-[#9c2525] origin-top transition-transform duration-1000 z-40"
                              style={{ clipPath: 'polygon(0% 0%, 100% 0%, 50% 50%)', transform: isOpen ? 'rotateX(180deg)' : 'rotateX(0deg)' }} />
 
-                        {/* Letter */}
                         <div className={`absolute left-1/2 -translate-x-1/2 paper-clean shadow-2xl letter-reveal
                             ${isSettled 
                                 ? 'fixed top-0 translate-y-[2vh] w-[94vw] h-[96vh] z-[100] scale-100 p-6' 
                                 : showLetter ? 'opacity-100 -translate-y-full w-[260px] h-[300px] z-10' : 'opacity-0 w-20 h-10'}`}>
                             
-                            <div className="h-full overflow-y-auto custom-scroll px-2">
+                            <div className="h-full overflow-y-auto custom-scroll px-2 sm:px-8 text-standard">
                                 {paragraphs.map((p, i) => (
                                     <p key={i} className="word-paragraph">{p}</p>
                                 ))}
-                                <div className="final-inquiry">
-                                    <p className="font-bold text-xl text-black">Хүслээ, намайг чиний найз залуу болохыг зөвшөөрч байна уу?</p>
+                                
+                                <div className="final-section">
+                                    <p className="mb-4">Тэгээд хайраасаа, чамаасаа энэ хүсэлтийг дахин гуйя.</p>
+                                    <p className="font-bold mb-4">Хүслээ, намайг чиний найз залуу болохыг зөвшөөрч байна уу?</p>
+                                    <p>Өхөөрдөм чинийхээ инээмсэглэлийг дахин харахын тулд, ялдам зөөлөн хоолойг чинь дахин сонсохын тулд хайрт минь.</p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Seal */}
                         {!isSealPopped && (
                             <div 
                                 onMouseDown={handleStart} onTouchStart={handleStart} 
@@ -189,7 +186,9 @@
                                             strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} />
                                 </svg>
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-14 h-14 bg-pink-600 rounded-full shadow-inner" />
+                                    <div className="w-14 h-14 bg-pink-600 rounded-full flex items-center justify-center shadow-lg">
+                                        <span className="text-white text-xl">♥</span>
+                                    </div>
                                 </div>
                             </div>
                         )}
